@@ -5,12 +5,16 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="0494fc1becf742cbb91848896228cc19" Name="Diagram1" >
-        <EntityTypeShape EntityType="Model1.User" Width="1.5" PointX="3.125" PointY="2.25" />
+        <EntityTypeShape EntityType="Model1.User" Width="1.5" PointX="1.875" PointY="3.5" />
         <EntityTypeShape EntityType="Model1.KnowledgeBase" Width="1.5" PointX="6.5" PointY="1.75" IsExpanded="true" />
         <AssociationConnector Association="Model1.UserLikeKnowledgeBase" />
         <AssociationConnector Association="Model1.UserKnowledgeBase" />
-        <EntityTypeShape EntityType="Model1.KnowledgeType" Width="1.5" PointX="3.625" PointY="4.5" />
+        <EntityTypeShape EntityType="Model1.KnowledgeType" Width="1.5" PointX="10" PointY="4.375" />
         <AssociationConnector Association="Model1.KnowledgeTypeKnowledgeBase" />
+        <EntityTypeShape EntityType="Model1.UserComment" Width="1.5" PointX="4.75" PointY="5.375" />
+        <AssociationConnector Association="Model1.UserUserComment" />
+        <AssociationConnector Association="Model1.UserCommentKnowledgeBase" />
+        <AssociationConnector Association="Model1.UserComment_UserComment" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

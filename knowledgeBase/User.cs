@@ -19,6 +19,7 @@ namespace knowledgeBase
         {
             this.LikeKnowledgeBases = new HashSet<KnowledgeBase>();
             this.KnowledgeBases = new HashSet<KnowledgeBase>();
+            this.UserComments = new HashSet<UserComment>();
         }
     
         public int Id { get; set; }
@@ -28,5 +29,7 @@ namespace knowledgeBase
         public virtual ICollection<KnowledgeBase> LikeKnowledgeBases { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<KnowledgeBase> KnowledgeBases { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<UserComment> UserComments { get; set; }
     }
 }

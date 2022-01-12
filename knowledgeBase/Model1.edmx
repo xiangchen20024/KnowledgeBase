@@ -9,6 +9,7 @@
     <EntitySet Name="Users" EntityType="Model1.Store.Users" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="KnowledgeBases" EntityType="Model1.Store.KnowledgeBases" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="KnowledgeTypes" EntityType="Model1.Store.KnowledgeTypes" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="UserComments" EntityType="Model1.Store.UserComments" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="UserKnowledgeBase" EntityType="Model1.Store.UserLikeKnowledgeBase" store:Type="Tables" Schema="dbo" />
     <AssociationSet Name="FK_UserKnowledgeBase_User" Association="Model1.Store.FK_UserLikeKnowledgeBase_User">
       <End Role="User" EntitySet="Users" />
@@ -26,6 +27,18 @@
       <End Role="KnowledgeType" EntitySet="KnowledgeTypes" />
       <End Role="KnowledgeBase" EntitySet="KnowledgeBases" />
     </AssociationSet>
+    <AssociationSet Name="UserUserComment" Association="Model1.Store.UserUserComment">
+      <End Role="User" EntitySet="Users" />
+      <End Role="UserComment" EntitySet="UserComments" />
+    </AssociationSet>
+    <AssociationSet Name="UserCommentKnowledgeBase" Association="Model1.Store.UserCommentKnowledgeBase">
+      <End Role="UserComment" EntitySet="UserComments" />
+      <End Role="KnowledgeBase" EntitySet="KnowledgeBases" />
+    </AssociationSet>
+    <AssociationSet Name="UserComment_UserComment" Association="Model1.Store.UserComment_UserComment">
+      <End Role="UserComment" EntitySet="UserComments" />
+      <End Role="UserComment1" EntitySet="UserComments" />
+    </AssociationSet>
   </EntityContainer>
   <EntityType Name="Users">
     <Key>
@@ -39,8 +52,8 @@
       <PropertyRef Name="Id" />
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-    <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
-    <Property Name="Content" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Title" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="Content" Type="nvarchar(max)" Nullable="true" />
     <Property Name="LikeNumber" Type="int" Nullable="false" DefaultValue="0" />
     <Property Name="User_Id" Type="int" Nullable="false" />
     <Property Name="KnowledgeType_Id" Type="int" Nullable="false" />
@@ -50,7 +63,17 @@
       <PropertyRef Name="Id" />
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-    <Property Name="Type" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Type" Type="nvarchar(max)" Nullable="true" />
+  </EntityType>
+  <EntityType Name="UserComments">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Comment" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="ParentCommentId" Type="int" Nullable="true" DefaultValue="0" />
+    <Property Name="User_Id" Type="int" Nullable="false" />
+    <Property Name="KnowledgeBases_Id" Type="int" Nullable="false" />
   </EntityType>
   <EntityType Name="UserLikeKnowledgeBase">
     <Key>
@@ -81,6 +104,42 @@
       </Principal>
       <Dependent Role="KnowledgeBase">
         <PropertyRef Name="KnowledgeType_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="UserUserComment">
+    <End Role="User" Type="Model1.Store.Users" Multiplicity="1" />
+    <End Role="UserComment" Type="Model1.Store.UserComments" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="UserComment">
+        <PropertyRef Name="User_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="UserCommentKnowledgeBase">
+    <End Role="UserComment" Type="Model1.Store.UserComments" Multiplicity="*" />
+    <End Role="KnowledgeBase" Type="Model1.Store.KnowledgeBases" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="KnowledgeBase">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="UserComment">
+        <PropertyRef Name="KnowledgeBases_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="UserComment_UserComment">
+    <End Role="UserComment" Type="Model1.Store.UserComments" Multiplicity="0..1" />
+    <End Role="UserComment1" Type="Model1.Store.UserComments" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="UserComment">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="UserComment1">
+        <PropertyRef Name="ParentCommentId" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
@@ -128,6 +187,19 @@
             <End Role="KnowledgeType" EntitySet="KnowledgeTypes" />
             <End Role="KnowledgeBase" EntitySet="KnowledgeBases" />
           </AssociationSet>
+          <EntitySet Name="UserComments" EntityType="Model1.UserComment" />
+          <AssociationSet Name="UserUserComment" Association="Model1.UserUserComment">
+            <End Role="User" EntitySet="Users" />
+            <End Role="UserComment" EntitySet="UserComments" />
+          </AssociationSet>
+          <AssociationSet Name="UserCommentKnowledgeBase" Association="Model1.UserCommentKnowledgeBase">
+            <End Role="UserComment" EntitySet="UserComments" />
+            <End Role="KnowledgeBase" EntitySet="KnowledgeBases" />
+          </AssociationSet>
+          <AssociationSet Name="UserComment_UserComment" Association="Model1.UserComment_UserComment">
+            <End Role="UserComment" EntitySet="UserComments" />
+            <End Role="UserComment1" EntitySet="UserComments" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="User">
           <Key>
@@ -137,18 +209,20 @@
           <Property Name="Name" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
           <NavigationProperty Name="LikeKnowledgeBases" Relationship="Model1.UserLikeKnowledgeBase" FromRole="User" ToRole="KnowledgeBase" />
           <NavigationProperty Name="KnowledgeBases" Relationship="Model1.UserKnowledgeBase" FromRole="User" ToRole="KnowledgeBase" />
+          <NavigationProperty Name="UserComments" Relationship="Model1.UserUserComment" FromRole="User" ToRole="UserComment" />
         </EntityType>
         <EntityType Name="KnowledgeBase">
           <Key>
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Title" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
-          <Property Name="Content" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
+          <Property Name="Title" Type="String" Nullable="true" MaxLength="Max" Unicode="true" FixedLength="false" />
+          <Property Name="Content" Type="String" Nullable="true" MaxLength="Max" Unicode="true" FixedLength="false" />
           <Property Name="LikeNumber" Type="Int32" Nullable="false" DefaultValue="0" />
           <NavigationProperty Name="LikeUsers" Relationship="Model1.UserLikeKnowledgeBase" FromRole="KnowledgeBase" ToRole="User" />
           <NavigationProperty Name="User" Relationship="Model1.UserKnowledgeBase" FromRole="KnowledgeBase" ToRole="User" />
           <NavigationProperty Name="KnowledgeType" Relationship="Model1.KnowledgeTypeKnowledgeBase" FromRole="KnowledgeBase" ToRole="KnowledgeType" />
+          <NavigationProperty Name="UserComment" Relationship="Model1.UserCommentKnowledgeBase" FromRole="KnowledgeBase" ToRole="UserComment" />
         </EntityType>
         <Association Name="UserLikeKnowledgeBase">
           <End Type="Model1.User" Role="User" Multiplicity="*" />
@@ -163,12 +237,42 @@
             <PropertyRef Name="Id" />
           </Key>
           <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Type" Type="String" Nullable="false" />
+          <Property Name="Type" Type="String" Nullable="true" MaxLength="Max" Unicode="true" FixedLength="false" />
           <NavigationProperty Name="KnowledgeBases" Relationship="Model1.KnowledgeTypeKnowledgeBase" FromRole="KnowledgeType" ToRole="KnowledgeBase" />
         </EntityType>
         <Association Name="KnowledgeTypeKnowledgeBase">
           <End Type="Model1.KnowledgeType" Role="KnowledgeType" Multiplicity="1" />
           <End Type="Model1.KnowledgeBase" Role="KnowledgeBase" Multiplicity="*" />
+        </Association>
+        <EntityType Name="UserComment">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Comment" Type="String" Nullable="true" MaxLength="Max" Unicode="true" FixedLength="false" />
+          <NavigationProperty Name="User" Relationship="Model1.UserUserComment" FromRole="UserComment" ToRole="User" />
+          <NavigationProperty Name="KnowledgeBases" Relationship="Model1.UserCommentKnowledgeBase" FromRole="UserComment" ToRole="KnowledgeBase" />
+          <Property Name="ParentCommentId" Type="Int32" Nullable="true" DefaultValue="0" />
+        </EntityType>
+        <Association Name="UserUserComment">
+          <End Type="Model1.User" Role="User" Multiplicity="1" />
+          <End Type="Model1.UserComment" Role="UserComment" Multiplicity="*" />
+        </Association>
+        <Association Name="UserCommentKnowledgeBase">
+          <End Type="Model1.UserComment" Role="UserComment" Multiplicity="*" />
+          <End Type="Model1.KnowledgeBase" Role="KnowledgeBase" Multiplicity="1" />
+        </Association>
+        <Association Name="UserComment_UserComment">
+          <End Type="Model1.UserComment" Role="UserComment" Multiplicity="0..1" />
+          <End Type="Model1.UserComment" Role="UserComment1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UserComment">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="UserComment1">
+              <PropertyRef Name="ParentCommentId" />
+            </Dependent>
+          </ReferentialConstraint>
         </Association>
       </Schema>
     </edmx:ConceptualModels>
@@ -202,6 +306,15 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="UserComments">
+      <EntityTypeMapping TypeName="IsTypeOf(Model1.UserComment)">
+        <MappingFragment StoreEntitySet="UserComments">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Comment" ColumnName="Comment" />
+          <ScalarProperty Name="ParentCommentId" ColumnName="ParentCommentId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
     <AssociationSetMapping Name="UserKnowledgeBase" TypeName="Model1.UserLikeKnowledgeBase" StoreEntitySet="UserKnowledgeBase">
       <EndProperty Name="User">
         <ScalarProperty Name="Id" ColumnName="LikeUsers_Id" />
@@ -223,6 +336,22 @@
         <ScalarProperty Name="Id" ColumnName="KnowledgeType_Id" />
       </EndProperty>
       <EndProperty Name="KnowledgeBase">
+        <ScalarProperty Name="Id" ColumnName="Id" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="UserUserComment" TypeName="Model1.UserUserComment" StoreEntitySet="UserComments">
+      <EndProperty Name="User">
+        <ScalarProperty Name="Id" ColumnName="User_Id" />
+      </EndProperty>
+      <EndProperty Name="UserComment">
+        <ScalarProperty Name="Id" ColumnName="Id" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="UserCommentKnowledgeBase" TypeName="Model1.UserCommentKnowledgeBase" StoreEntitySet="UserComments">
+      <EndProperty Name="KnowledgeBase">
+        <ScalarProperty Name="Id" ColumnName="KnowledgeBases_Id" />
+      </EndProperty>
+      <EndProperty Name="UserComment">
         <ScalarProperty Name="Id" ColumnName="Id" />
       </EndProperty>
     </AssociationSetMapping>

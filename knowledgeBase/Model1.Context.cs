@@ -28,5 +28,6 @@ namespace knowledgeBase
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<KnowledgeBase> KnowledgeBases { get; set; }
         public virtual DbSet<KnowledgeType> KnowledgeTypes { get; set; }
+        public virtual DbSet<UserComment> UserComments { get; set; }
     }
 }
